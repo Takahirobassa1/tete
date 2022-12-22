@@ -1,0 +1,100 @@
+<html>
+	<body>
+		<style>
+			canvas {
+				width: 100%;
+				height: 50%;
+				border: solid 1px gray;
+			}
+			label {
+				display: inline-block;
+				padding: 0.5em;
+				height: 1em;
+				line-height: 1em;
+				border: solid 1px gray;
+				background-color: lightgray;
+				margin: 0.5em 0 0 0.5em;
+				font-size: large;
+				vertical-align: top;
+			}
+			div {
+				display: inline-block;
+				border: solid 1px gray;
+				min-width: 10em;
+				height: 1em;
+				padding: 0.5em;
+				line-height: 1em;
+				overflow: hidden;
+				width: 25%;
+				margin: 0.5em 0;
+				font-size: large;
+			}
+		</style>
+		<script>
+			function requestPermission() {
+				if (typeof(DeviceMotionEvent) === undefined || typeof(DeviceMotionEvent.requestPermission) === undefined) {
+					return
+				}
+				DeviceMotionEvent.requestPermission().then(response => {
+					if (response == "granted") {
+						document.body.removeChild(requestPermissionButton)
+						init()
+					}
+				})
+			}
+			let requestPermissionButton = document.createElement("button")
+			requestPermissionButton.innerHTML = "request permission"
+			requestPermissionButton.addEventListener('click', evt => {
+				requestPermission()
+			})
+			document.body.appendChild(requestPermissionButton)
+
+			function init() {
+				let canvas = document.createElement("canvas")
+				let xNode = document.createElement("div")
+				let yNode = document.createElement("div")
+				let zNode = document.createElement("div")
+				let xLabel = document.createElement("label")
+				let yLabel = document.createElement("label")
+				let zLabel = document.createElement("label")
+
+				xLabel.innerHTML = "x"
+				yLabel.innerHTML = "y"
+				zLabel.innerHTML = "z"
+
+				document.body.appendChild(canvas)
+				document.body.appendChild(xLabel)
+				document.body.appendChild(xNode)
+				document.body.appendChild(yLabel)
+				document.body.appendChild(yNode)
+				document.body.appendChild(zLabel)
+				document.body.appendChild(zNode)
+
+				let canvasRect =  canvas.getBoundingClientRect()
+				canvas.width = canvasRect.width
+				canvas.height = canvasRect.height
+
+				window.addEventListener('devicemotion', event => {
+					let accX = event.acceleration.x
+					let accY = event.acceleration.y
+					let accZ = event.acceleration.z
+					
+					xNode.innerHTML = accX
+					yNode.innerHTML = accY
+					zNode.innerHTML = accZ
+
+					let ctx = canvas.getContext("2d")
+					let radius = 50 - accZ * 10
+					let x = canvasRect.width / 2 + accX * 10
+					let y = canvasRect.height / 2 + accY * 10
+					
+					ctx.clearRect(0, 0, canvasRect.width, canvasRect.height)
+
+					ctx.beginPath()
+					ctx.arc(x, y, radius, 0, Math.PI * 2)
+					ctx.fill()
+				})
+			}
+		</script>
+	</body>
+</html>
